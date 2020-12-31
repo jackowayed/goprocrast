@@ -48,15 +48,27 @@ func currentHosts() []string {
 }
 
 func activate() {
-	//fmt.Println(hostsFileContent())
-	fmt.Println(currentHosts())
+	deactivate()
+	file, err := os.OpenFile(hostsPath(), os.O_APPEND|os.O_WRONLY, 0)
+	check(err)
+	file.WriteString("\n\n# noprocrast start\n")
+	for _, host := range currentHosts() {
+		file.WriteString(host)
+		file.WriteString("\n")
+	}
+	file.WriteString("\n# noprocrast end")
+	check(file.Close())
 }
 
 func deactivate() {
 	re, err := regexp.Compile("(?m)(\n\n)?# noprocrast start.*# noprocrast end")
 	check(err)
+	fmt.Println(re.FindIndex(hostsFileContent()))
 	cleanHosts := re.ReplaceAllLiteral(hostsFileContent(), nil)
-	fmt.Println(cleanHosts)
+	file, err := os.OpenFile(hostsPath(), os.O_WRONLY, 0)
+	check(err)
+	file.Write(cleanHosts)
+	check(file.Close())
 }
 
 func suid() {
