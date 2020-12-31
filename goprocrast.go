@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strings"
 	"syscall"
@@ -38,7 +39,9 @@ func hostsFileContent() []byte {
 }
 
 func currentHosts() []string {
-	file, err := os.Open(".noprocrast")
+	homePath, err := os.UserHomeDir()
+	check(err)
+	file, err := os.Open(path.Join(homePath, ".noprocrast"))
 	check(err)
 	scanner := bufio.NewScanner(file)
 	var hosts []string
