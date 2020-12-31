@@ -11,7 +11,8 @@ import (
 	"syscall"
 )
 
-var noprocrastRegexp = regexp.MustCompile("(?m)(?:\n\n)?# noprocrast start(?:\n|.)*# noprocrast end")
+var noprocrastRegexp = regexp.MustCompile(
+	"(?m)(?:\n\n)?# noprocrast start(?:\n|.)*# noprocrast end")
 
 func check(e error) {
 	if e != nil {
@@ -74,7 +75,8 @@ func openHostsFile(truncate bool) *os.File {
 		flags = os.O_APPEND | os.O_WRONLY
 	}
 	file, err := os.OpenFile(hostsPath(), flags, 0)
-	if err != nil && strings.Contains(err.Error(), "permission denied") && syscall.Getuid() != 0 {
+	if err != nil && strings.Contains(err.Error(), "permission denied") &&
+		syscall.Getuid() != 0 {
 		suidRoot()
 		return openHostsFile(truncate)
 	} else if err != nil {
