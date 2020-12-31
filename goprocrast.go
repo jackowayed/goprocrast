@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"regexp"
+	"syscall"
 )
 
 func dev() bool {
@@ -17,12 +19,12 @@ func hostsPath() string {
 	return "/etc/hosts"
 }
 
-func hostsFileContent() string {
+func hostsFileContent() []byte {
 	content, err := ioutil.ReadFile(hostsPath())
 	if err != nil {
 		panic(err)
 	}
-	return string(content)
+	return content
 }
 
 func activate() {
@@ -30,15 +32,27 @@ func activate() {
 }
 
 func deactivate() {
+	re, err := regexp.Compile("(?m)(\n\n)?# noprocrast start.*# noprocrast end")
+	if err != nil {
+		panic(err)
+	}
+	cleanHosts := re.ReplaceAllLiteral(hostsFileContent(), nil)
+	fmt.Println(cleanHosts)
+}
 
+func suid() {
+	err := syscall.Setuid(0)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
-	fmt.Println(os.Args[0])
 	if len(os.Args) <= 1 {
 		fmt.Println("usage")
 		os.Exit(0)
 	}
+	//suid()
 
 	cmd := os.Args[1]
 	fmt.Println(cmd)
