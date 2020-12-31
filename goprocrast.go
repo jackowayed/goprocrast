@@ -13,13 +13,12 @@ func dev() bool {
 func hostsPath() string {
 	if dev() {
 		return "./hosts.dev"
-	} else {
-		return "/etc/hosts"
 	}
+	return "/etc/hosts"
 }
 
 func hostsFileContent() string {
-	content, err := ioutil.ReadFile(hostsPath()) // the file is inside the local directory
+	content, err := ioutil.ReadFile(hostsPath())
 	if err != nil {
 		panic(err)
 	}
