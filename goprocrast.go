@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -120,6 +121,11 @@ func edit() {
 	check(cmd.Run())
 }
 
+func active() bool {
+	return bytes.Contains(
+		hostsFileContent(), []byte("# noprocrast start"))
+}
+
 func main() {
 	if len(os.Args) <= 1 {
 		fmt.Println("usage")
@@ -133,5 +139,12 @@ func main() {
 		deactivate()
 	case "edit":
 		edit()
+		fmt.Println("Saved. Now: noprocrast on")
+	case "status":
+		if active() {
+			fmt.Println("enabled")
+		} else {
+			fmt.Println("disabled")
+		}
 	}
 }
