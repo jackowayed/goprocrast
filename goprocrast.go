@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 	"syscall"
@@ -19,7 +20,7 @@ func check(e error) {
 }
 
 func dev() bool {
-	return os.Getenv("DEV") == "1" || true //temp
+	return os.Getenv("DEV") == "1"
 }
 
 func hostsPath() string {
@@ -60,17 +61,35 @@ func activate() {
 	}
 	file.WriteString("\n# noprocrast end")
 	check(file.Close())
+
+	check(exec.Command("dscacheutil", "-flushcache").Run())
+}
+
+func openHostsFile(truncate bool) *os.File {
+	var flags int
+	if truncate {
+		flags = os.O_WRONLY | os.O_TRUNC
+	} else {
+		flags = os.O_APPEND | os.O_WRONLY
+	}
+	file, err := os.OpenFile(hostsPath(), flags, 0)
+	if err != nil && strings.Contains(err.Error(), "permission denied") && syscall.Getuid() != 0 {
+		suidRoot()
+		return openHostsFile(truncate)
+	} else if err != nil {
+		panic(err)
+	}
+	return file
 }
 
 func deactivate() {
 	cleanHosts := noprocrastRegexp.ReplaceAllLiteral(hostsFileContent(), nil)
-	file, err := os.OpenFile(hostsPath(), os.O_WRONLY|os.O_TRUNC, 0)
-	check(err)
+	file := openHostsFile(true)
 	file.Write(cleanHosts)
 	check(file.Close())
 }
 
-func suid() {
+func suidRoot() {
 	err := syscall.Setuid(0)
 	check(err)
 }
