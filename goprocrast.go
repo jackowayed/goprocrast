@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-var noprocrastRegexp = regexp.MustCompile("(?m)(\n\n)?# noprocrast start.*# noprocrast end")
+var noprocrastRegexp = regexp.MustCompile("(?m)(?:\n\n)?# noprocrast start(?:\n|.)*# noprocrast end")
 
 func check(e error) {
 	if e != nil {
