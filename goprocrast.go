@@ -63,9 +63,8 @@ func activate() {
 }
 
 func deactivate() {
-	//fmt.Println(re.FindIndex(hostsFileContent()))
 	cleanHosts := noprocrastRegexp.ReplaceAllLiteral(hostsFileContent(), nil)
-	file, err := os.OpenFile(hostsPath(), os.O_WRONLY, 0)
+	file, err := os.OpenFile(hostsPath(), os.O_WRONLY|os.O_TRUNC, 0)
 	check(err)
 	file.Write(cleanHosts)
 	check(file.Close())
