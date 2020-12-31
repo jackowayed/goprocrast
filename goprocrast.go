@@ -10,6 +10,8 @@ import (
 	"syscall"
 )
 
+var noprocrastRegexp = regexp.MustCompile("(?m)(\n\n)?# noprocrast start.*# noprocrast end")
+
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -61,10 +63,8 @@ func activate() {
 }
 
 func deactivate() {
-	re, err := regexp.Compile("(?m)(\n\n)?# noprocrast start.*# noprocrast end")
-	check(err)
-	fmt.Println(re.FindIndex(hostsFileContent()))
-	cleanHosts := re.ReplaceAllLiteral(hostsFileContent(), nil)
+	//fmt.Println(re.FindIndex(hostsFileContent()))
+	cleanHosts := noprocrastRegexp.ReplaceAllLiteral(hostsFileContent(), nil)
 	file, err := os.OpenFile(hostsPath(), os.O_WRONLY, 0)
 	check(err)
 	file.Write(cleanHosts)
