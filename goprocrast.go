@@ -105,10 +105,7 @@ func main() {
 		fmt.Println("usage")
 		os.Exit(0)
 	}
-	//suid()
-
 	cmd := os.Args[1]
-	fmt.Println(cmd)
 	switch cmd {
 	case "on":
 		activate()
