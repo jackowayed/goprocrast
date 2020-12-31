@@ -56,6 +56,7 @@ func activate() {
 	check(err)
 	file.WriteString("\n\n# noprocrast start\n")
 	for _, host := range currentHosts() {
+		file.WriteString("127.0.0.1 ")
 		file.WriteString(host)
 		file.WriteString("\n")
 	}
