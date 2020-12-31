@@ -38,12 +38,20 @@ func hostsFileContent() []byte {
 	return content
 }
 
-func currentHosts() []string {
+func noprocrastPath() string {
 	homePath, err := os.UserHomeDir()
 	check(err)
-	file, err := os.Open(path.Join(homePath, ".noprocrast"))
+	return path.Join(homePath, ".noprocrast")
+}
+
+func noprocrastFile() *os.File {
+	file, err := os.Open(noprocrastPath())
 	check(err)
-	scanner := bufio.NewScanner(file)
+	return file
+}
+
+func currentHosts() []string {
+	scanner := bufio.NewScanner(noprocrastFile())
 	var hosts []string
 	for scanner.Scan() {
 		host := strings.TrimSpace(scanner.Text())
@@ -100,6 +108,18 @@ func suidRoot() {
 	check(err)
 }
 
+func edit() {
+	editor := os.Getenv("EDITOR")
+	if len(editor) == 0 {
+		editor = "vi"
+	}
+	cmd := exec.Command(editor, noprocrastPath())
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	check(cmd.Run())
+}
+
 func main() {
 	if len(os.Args) <= 1 {
 		fmt.Println("usage")
@@ -107,9 +127,11 @@ func main() {
 	}
 	cmd := os.Args[1]
 	switch cmd {
-	case "on":
+	case "on", "reload":
 		activate()
 	case "off":
 		deactivate()
+	case "edit":
+		edit()
 	}
 }
