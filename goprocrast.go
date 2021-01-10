@@ -10,7 +10,6 @@ import (
 	"path"
 	"regexp"
 	"strings"
-	"syscall"
 )
 
 var noprocrastRegexp = regexp.MustCompile(
@@ -87,11 +86,7 @@ func openHostsFile(truncate bool) *os.File {
 		flags = os.O_APPEND | os.O_WRONLY
 	}
 	file, err := os.OpenFile(hostsPath(), flags, 0)
-	if err != nil && strings.Contains(err.Error(), "permission denied") &&
-		syscall.Getuid() != 0 {
-		suidRoot()
-		return openHostsFile(truncate)
-	} else if err != nil {
+	if err != nil {
 		panic(err)
 	}
 	return file
@@ -102,11 +97,6 @@ func deactivate() {
 	file := openHostsFile(true)
 	file.Write(cleanHosts)
 	check(file.Close())
-}
-
-func suidRoot() {
-	err := syscall.Setuid(0)
-	check(err)
 }
 
 func edit() {
